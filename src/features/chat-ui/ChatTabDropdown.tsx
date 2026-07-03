@@ -48,7 +48,7 @@ export const ChatTabDropdown: React.FC<ChatTabDropdownProps> = ({
   };
 
   const menuOptions = [
-    { label: 'Add friends', icon: UserPlus, onClick: () => handleNavigation('/search') },
+    { label: 'Add friends', icon: UserPlus, onClick: () => handleNavigation('/contacts') },
     { label: 'Select', icon: CheckSquare, onClick: () => {
         setChatSelectMode(true);
         setSelectedChatIds([]);

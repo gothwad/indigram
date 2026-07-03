@@ -7,7 +7,7 @@ import { useConversations } from '../chat/hooks/useConversations.ts';
 import { ChatUserList } from '../chat/components/ChatUserList.tsx';
 import { CommonSearchBar } from '../../components/common/CommonSearchBar';
 
-export default function ChannelsTab() {
+export default function ChannelsTab({ hideSearchBar }: { hideSearchBar?: boolean }) {
   const navigate = useNavigate();
   const { searchTerm, setSearchTerm } = useSearch();
   const { isChatSelectMode } = useLayout();
@@ -47,12 +47,14 @@ export default function ChannelsTab() {
     <div className="h-full flex flex-col bg-[var(--bg-card)] overflow-hidden animate-fade-in touch-pan-y">
       <div onScroll={handleScroll} className="flex-1 overflow-y-auto no-scrollbar pb-32 bg-[var(--bg-card)]">
         {/* Scrollable Search Bar */}
-        <CommonSearchBar 
-          placeholder="Search subscribed channels..."
-          value={searchTerm}
-          onChange={setSearchTerm}
-          onClear={() => setSearchTerm('')}
-        />
+        {!hideSearchBar && (
+          <CommonSearchBar 
+            placeholder="Search subscribed channels..."
+            value={searchTerm}
+            onChange={setSearchTerm}
+            onClear={() => setSearchTerm('')}
+          />
+        )}
 
         {/* Channels List */}
         <div className="flex flex-col mt-1">

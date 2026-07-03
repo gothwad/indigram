@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useSearch } from '../../contexts/SearchContext.tsx';
 import { Link, useNavigate } from 'react-router-dom';
-import { MessageCircle, Phone, Video, ArrowUpRight, ArrowDownLeft, PhoneMissed, Info, Lock, Users, Search, X, Plus, Loader2, Trash, Archive } from 'lucide-react';
+import { MessageCircle, Phone, Video, ArrowUpRight, ArrowDownLeft, PhoneMissed, Info, Lock, Users, Search, X, Plus, Loader2, Trash, Archive, ChevronRight } from 'lucide-react';
 import { useLayout } from '../../contexts/LayoutContext.tsx';
 import { motion, AnimatePresence } from 'motion/react';
 import { useConversations } from './hooks/useConversations.ts';
@@ -18,6 +18,7 @@ import Avatar from '../../components/common/Avatar';
 import CommonSearchBar from '../../components/common/CommonSearchBar';
 import GroupsTab from '../groups/GroupsTab';
 import ChannelsTab from '../channels/ChannelsTab';
+import { LocalDataCache } from '../../services/LocalDataCache';
 
 interface StoryGroup {
   userId: string;
@@ -59,6 +60,8 @@ export default function ChatsTab() {
   } = useCalls(activeFilter);
   
   const loading = activeFilter === 'Calls' ? callsLoading : conversationsLoading;
+
+  const [subTab, setSubTab] = useState<'chats' | 'channels'>('chats');
 
   const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
     const target = e.currentTarget;
@@ -112,90 +115,121 @@ export default function ChatsTab() {
       
       <div onScroll={handleScroll} className="flex-1 overflow-y-auto no-scrollbar pb-32 bg-[var(--bg-card)]">
 
-        {/* Scrollable Reusable Search Bar */}
+        {/* Scrollable Reusable Search Bar at the very top */}
         <CommonSearchBar 
-          placeholder="Search chats or messages..."
+          placeholder={subTab === 'chats' ? "Search chats or messages..." : "Search channels..."}
           value={searchTerm}
           onChange={setSearchTerm}
           onClear={() => setSearchTerm('')}
         />
 
-        {/* User List (Chats or Calls) */}
-        <div className="flex flex-col mt-1">
-          {searchTerm && (
-            <div className="px-4 py-2 bg-[var(--bg-main)]/30 border-b border-[var(--border-color)]/5 select-none text-[10px] font-black text-[#0494f4] uppercase tracking-wider flex items-center justify-between select-none font-mono">
-              <span>Matching results for "{searchTerm}"</span>
-              <span className="bg-[#0494f4]/20 text-[#0494f4] px-1.5 py-0.5 rounded text-[9px] font-bold">Client-Side Search</span>
-            </div>
-          )}
+        {/* Switch Button (Segmented Control) for Chats and Channels below Search Bar */}
+        <div className="px-4 pt-1 pb-2 select-none shrink-0">
+          <div className="flex bg-[var(--bg-main)]/80 backdrop-blur-md border border-[var(--border-color)]/10 p-1 gap-1 rounded-xl">
+            <button 
+              onClick={() => setSubTab('chats')}
+              className={`flex-1 py-2 text-[11px] font-black uppercase tracking-wider rounded-lg transition-all cursor-pointer flex items-center justify-center relative ${
+                subTab === 'chats'
+                  ? 'bg-[#0494f4] text-white shadow-sm shadow-[#0494f4]/15'
+                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card)]/40'
+              }`}
+            >
+              <span>Chats</span>
+            </button>
+            <button 
+              onClick={() => setSubTab('channels')}
+              className={`flex-1 py-2 text-[11px] font-black uppercase tracking-wider rounded-lg transition-all cursor-pointer flex items-center justify-center relative ${
+                subTab === 'channels'
+                  ? 'bg-[#0494f4] text-white shadow-sm shadow-[#0494f4]/15'
+                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card)]/40'
+              }`}
+            >
+              <span>Channels</span>
+            </button>
+          </div>
+        </div>
 
-          {loading ? (
-            <div className="flex flex-col items-center justify-center py-20 gap-4">
-              <div className="w-8 h-8 border-4 border-[var(--primary)]/20 border-t-[var(--primary)] rounded-full animate-spin" />
-              <p className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-widest">Loading {activeFilter === 'Calls' ? 'Calls' : 'Chats'}...</p>
-            </div>
-          ) : activeFilter === 'Calls' ? (
-            (() => {
-              if (calls.length === 0) {
+        {/* Dynamic Sub-tab rendering */}
+        {subTab === 'channels' ? (
+          <ChannelsTab hideSearchBar />
+        ) : (
+          /* CHATS LIST VIEW */
+          <div className="flex flex-col mt-1">
+            {searchTerm && (
+              <div className="px-4 py-2 bg-[var(--bg-main)]/30 border-b border-[var(--border-color)]/5 select-none text-[10px] font-black text-[#0494f4] uppercase tracking-wider flex items-center justify-between select-none font-mono">
+                <span>Matching results for "{searchTerm}"</span>
+                <span className="bg-[#0494f4]/20 text-[#0494f4] px-1.5 py-0.5 rounded text-[9px] font-bold">Client-Side Search</span>
+              </div>
+            )}
+
+            {loading ? (
+              <div className="flex flex-col items-center justify-center py-20 gap-4">
+                <div className="w-8 h-8 border-4 border-[var(--primary)]/20 border-t-[var(--primary)] rounded-full animate-spin" />
+                <p className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-widest">Loading {activeFilter === 'Calls' ? 'Calls' : 'Chats'}...</p>
+              </div>
+            ) : activeFilter === 'Calls' ? (
+              (() => {
+                if (calls.length === 0) {
+                  return (
+                    <div className="flex flex-col items-center justify-center py-20 px-10 text-center gap-4">
+                      <div className="p-4 bg-[var(--bg-main)] rounded-full text-[var(--text-secondary)]">
+                        <Phone size={40} />
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-bold text-[var(--text-primary)] mb-1">No calls yet</h3>
+                        <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
+                          Your recent calls will appear here.
+                        </p>
+                      </div>
+                    </div>
+                  );
+                }
                 return (
-                  <div className="flex flex-col items-center justify-center py-20 px-10 text-center gap-4">
-                    <div className="p-4 bg-[var(--bg-main)] rounded-full text-[var(--text-secondary)]">
-                      <Phone size={40} />
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-bold text-[var(--text-primary)] mb-1">No calls yet</h3>
-                      <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
-                        Your recent calls will appear here.
-                      </p>
-                    </div>
+                  <div className="flex flex-col">
+                    <CallsHistoryList 
+                      calls={calls} 
+                      loading={callsLoading} 
+                      onCall={(userId, type) => navigate(`/call/${userId}?type=${type}`)}
+                      onReset={() => {}}
+                    />
+                    {callsLoadingMore && (
+                      <div className="flex items-center justify-center py-4 gap-2 bg-[var(--bg-card)]">
+                        <Loader2 size={16} className="text-[#0494f4] animate-spin" />
+                        <span className="text-[10px] text-[var(--text-secondary)] font-bold uppercase tracking-wider">Loading more calls...</span>
+                      </div>
+                    )}
                   </div>
                 );
-              }
-              return (
-                <div className="flex flex-col">
-                  <CallsHistoryList 
-                    calls={calls} 
-                    loading={callsLoading} 
-                    onCall={(userId, type) => navigate(`/call/${userId}?type=${type}`)}
-                    onReset={() => {}}
-                  />
-                  {callsLoadingMore && (
-                    <div className="flex items-center justify-center py-4 gap-2 bg-[var(--bg-card)]">
-                      <Loader2 size={16} className="text-[#0494f4] animate-spin" />
-                      <span className="text-[10px] text-[var(--text-secondary)] font-bold uppercase tracking-wider">Loading more calls...</span>
-                    </div>
-                  )}
-                </div>
-              );
-            })()
-          ) : activeFilter === 'Groups' ? (
-            <GroupsTab />
-          ) : activeFilter === 'Channels' ? (
-            <ChannelsTab />
-          ) : (
-            <>
-              <ChatUserList 
-                conversations={filteredConversations}
-                otherUsers={searchTerm ? [] : filteredOtherUsers} // Only show "Others" if not searching or if search returns nothing? 
-                                                                 // Actually the user said "others user" should be below.
-                showGrixAI={!searchTerm} 
-                archivedCount={userData?.archivedChats?.length || 0}
-                showSecretHeader={false}
-                onSecretHeaderClick={() => {}}
-                secretCount={0}
-                showHiddenChatsEntry={false}
-                loading={loading}
-                usersWithStories={[]}
-              />
-              {conversationsLoadingMore && (
-                <div className="flex items-center justify-center py-4 gap-2 bg-[var(--bg-card)]">
-                  <Loader2 size={16} className="text-[#0494f4] animate-spin" />
-                  <span className="text-[10px] text-[var(--text-secondary)] font-bold uppercase tracking-wider">Loading more chats...</span>
-                </div>
-              )}
-            </>
-          )}
-        </div>
+              })()
+            ) : activeFilter === 'Groups' ? (
+              <GroupsTab />
+            ) : activeFilter === 'Channels' ? (
+              <ChannelsTab />
+            ) : (
+              <>
+                <ChatUserList 
+                  conversations={filteredConversations}
+                  otherUsers={searchTerm ? [] : filteredOtherUsers} // Only show "Others" if not searching or if search returns nothing? 
+                                                                   // Actually the user said "others user" should be below.
+                  showGrixAI={!searchTerm} 
+                  archivedCount={userData?.archivedChats?.length || 0}
+                  showSecretHeader={false}
+                  onSecretHeaderClick={() => {}}
+                  secretCount={0}
+                  showHiddenChatsEntry={false}
+                  loading={loading}
+                  usersWithStories={[]}
+                />
+                {conversationsLoadingMore && (
+                  <div className="flex items-center justify-center py-4 gap-2 bg-[var(--bg-card)]">
+                    <Loader2 size={16} className="text-[#0494f4] animate-spin" />
+                    <span className="text-[10px] text-[var(--text-secondary)] font-bold uppercase tracking-wider">Loading more chats...</span>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

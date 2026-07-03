@@ -506,10 +506,10 @@ export const ChatUserList: React.FC<ChatUserListProps> = ({
             </p>
           </div>
           <button 
-            onClick={() => navigate('/search')}
+            onClick={() => navigate('/contacts')}
             className="mt-1 bg-[var(--primary)] text-white px-6 py-2.5 rounded-xl text-xs font-bold shadow-lg shadow-[var(--primary-shadow)]/30 hover:shadow-xl hover:-translate-y-0.5 transition-all cursor-pointer"
           >
-            Search Users
+            Explore Contacts
           </button>
         </div>
       )}

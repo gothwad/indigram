@@ -131,10 +131,10 @@ export default function TabHeader() {
   ] as const;
 
   const isChatsPage = location.pathname === '/' || location.pathname === '/chats';
-  const isStoriesPage = location.pathname === '/stories';
+  const isGroupsPage = location.pathname === '/groups';
   const isReelsPage = location.pathname === '/reels';
   const isPostsPage = location.pathname === '/posts';
-  const isSearchPage = location.pathname === '/search';
+  const isContactsPage = location.pathname === '/contacts';
   const isProfilePage = location.pathname === '/profile';
   const isCallsPage = location.pathname === '/calls';
 
@@ -413,6 +413,27 @@ export default function TabHeader() {
                   chatListFilter={chatListFilter}
                   setChatListFilter={setChatListFilter}
                   showHiddenChatsEntry={userData?.hiddenChatSettings?.showMenuEntry !== false}
+                />
+              )}
+            </AnimatePresence>
+          </div>
+        )}
+
+        {/* 3 Dots Menu - Show on Groups tab only */}
+        {isGroupsPage && (
+          <div className="relative" ref={menuRef}>
+            <button 
+              onClick={() => setShowMenu(prev => !prev)}
+              className="w-12 h-12 flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/5 rounded-full transition-colors cursor-pointer relative active:scale-95 duration-100"
+              id="header-groups-three-dots"
+            >
+              <MoreVertical size={22} className="text-[var(--header-text)]" />
+            </button>
+            <AnimatePresence>
+              {showMenu && (
+                <GroupsTabDropdown 
+                  isOpen={showMenu}
+                  onClose={() => setShowMenu(false)}
                 />
               )}
             </AnimatePresence>

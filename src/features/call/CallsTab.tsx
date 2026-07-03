@@ -30,6 +30,7 @@ export default function CallsTab() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [isPaginating, setIsPaginating] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [subTab, setSubTab] = useState<'recent' | 'missed'>('recent');
 
   // Keep references to current calls to prevent state-reset loop
   const callsRef = useRef(calls);
@@ -108,6 +109,9 @@ export default function CallsTab() {
 
   const getFilteredCalls = () => {
     let filtered = calls;
+    if (subTab === 'missed') {
+      filtered = filtered.filter(c => c.isMissed);
+    }
     if (searchTerm) {
       filtered = filtered.filter(c => 
         (c.user || '').toLowerCase().includes(searchTerm.toLowerCase())
@@ -137,6 +141,32 @@ export default function CallsTab() {
             onChange={setSearchTerm}
             onClear={() => setSearchTerm('')}
           />
+
+          {/* Switch Button (Segmented Control) for Recent and Missed calls */}
+          <div className="px-4 pt-1 pb-2 select-none shrink-0">
+            <div className="flex bg-[var(--bg-main)]/80 backdrop-blur-md border border-[var(--border-color)]/10 p-1 gap-1 rounded-xl">
+              <button 
+                onClick={() => setSubTab('recent')}
+                className={`flex-1 py-2 text-[11px] font-black uppercase tracking-wider rounded-lg transition-all cursor-pointer flex items-center justify-center relative ${
+                  subTab === 'recent'
+                    ? 'bg-[#0494f4] text-white shadow-sm shadow-[#0494f4]/15'
+                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card)]/40'
+                }`}
+              >
+                <span>Recent</span>
+              </button>
+              <button 
+                onClick={() => setSubTab('missed')}
+                className={`flex-1 py-2 text-[11px] font-black uppercase tracking-wider rounded-lg transition-all cursor-pointer flex items-center justify-center relative ${
+                  subTab === 'missed'
+                    ? 'bg-[#0494f4] text-white shadow-sm shadow-[#0494f4]/15'
+                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card)]/40'
+                }`}
+              >
+                <span>Missed</span>
+              </button>
+            </div>
+          </div>
 
           {/* List display area */}
           <div className="mt-1">

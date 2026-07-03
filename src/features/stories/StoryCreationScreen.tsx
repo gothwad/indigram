@@ -89,6 +89,7 @@ export default function StoryCreationScreen() {
       });
 
       if (error) throw error;
+      window.dispatchEvent(new Event('story-created'));
       navigate('/chats');
     } catch (err) {
       console.error('Failed to create story:', err);

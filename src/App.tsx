@@ -38,8 +38,8 @@ import ProfileTab from './features/profile/ProfileTab';
 
 // Lazy Loading Features & Screens
 const ChatsTab = React.lazy(() => import('./features/chat/ChatsTab'));
-const StoriesTab = React.lazy(() => import('./features/stories/StoriesTab'));
-const SearchTab = React.lazy(() => import('./features/search/SearchTab'));
+const GroupsTab = React.lazy(() => import('./features/groups/GroupsTab'));
+const ContactsTab = React.lazy(() => import('./features/contacts/ContactsTab'));
 const ChatLayout = React.lazy(() => import('./features/chat/ChatLayout'));
 const ChatScreen = React.lazy(() => import('./features/chat/ChatScreen'));
 const MessagesListScreen = React.lazy(() => import('./features/chat/MessagesListScreen'));
@@ -175,7 +175,7 @@ export default function App() {
       '/create': 'New Post',
       '/stories/create': 'New Story',
       '/reels/create': 'New Reel',
-      '/search': 'Search',
+      '/contacts': 'Contacts',
       '/complete-profile': 'Complete Profile',
       '/forgot-password': 'Reset Password',
       '/app-lock': 'App Lock',
@@ -498,10 +498,10 @@ export default function App() {
                       } />
                       <Route path="/chats/archived" element={user ? <ArchivedChatScreen /> : <Navigate to="/login" />} />
                       <Route path="/chats/requests" element={user ? <MessageRequestsScreen /> : <Navigate to="/login" />} />
-                       <Route path="/stories" element={user ? <StoriesTab /> : <Navigate to="/login" />} />
-                      <Route path="/search" element={user ? <SearchTab /> : <Navigate to="/login" />} />
-                      <Route path="/updates" element={<Navigate to="/search" replace />} />
-                      <Route path="/channels" element={<Navigate to="/search" replace />} />
+                       <Route path="/groups" element={user ? <GroupsTab /> : <Navigate to="/login" />} />
+                      <Route path="/contacts" element={user ? <ContactsTab /> : <Navigate to="/login" />} />
+                      <Route path="/updates" element={<Navigate to="/contacts" replace />} />
+                      <Route path="/channels" element={<Navigate to="/contacts" replace />} />
                       <Route element={<ChatLayout />}>
                         <Route path="/chat/:id" element={user ? <ChatScreen /> : <Navigate to="/login" />} />
                         <Route path="/chat/:id/settings" element={user ? <ChatSettingsScreen /> : <Navigate to="/login" />} />

@@ -14,21 +14,21 @@ import DesktopWelcome from './DesktopWelcome';
 
 // Lazy loading our tabs for keep-alive container
 const ChatsTab = React.lazy(() => import('../../features/chat/ChatsTab'));
-const StoriesTab = React.lazy(() => import('../../features/stories/StoriesTab'));
-const SearchTab = React.lazy(() => import('../../features/search/SearchTab'));
+const GroupsTab = React.lazy(() => import('../../features/groups/GroupsTab'));
+const ContactsTab = React.lazy(() => import('../../features/contacts/ContactsTab'));
 const CallsTab = React.lazy(() => import('../../features/call/CallsTab'));
 const ProfileTab = React.lazy(() => import('../../features/profile/ProfileTab'));
 const NotificationsScreen = React.lazy(() => import('../../features/notifications/NotificationsScreen'));
 
 // Paths where BottomNav should be visible
-const TAB_PATHS = ['/', '/chats', '/stories', '/search', '/calls', '/profile', '/notifications', '/reels'];
-const MAIN_TABS = ['/', '/chats', '/stories', '/search', '/calls', '/profile'];
+const TAB_PATHS = ['/', '/chats', '/groups', '/contacts', '/calls', '/profile', '/notifications', '/reels'];
+const MAIN_TABS = ['/', '/chats', '/groups', '/contacts', '/calls', '/profile'];
 
 const getDesktopParentPane = (pathname: string): 'chats' | 'groups' | 'settings' | 'notifications' | null => {
   // If exactly on a main list screen, return null to direct-route in middle list pane
   if (pathname === '/chats' || 
       pathname === '/groups' || 
-      pathname === '/search' || 
+      pathname === '/contacts' || 
       pathname === '/calls' || 
       pathname === '/profile' || 
       pathname === '/notifications') {
@@ -333,22 +333,22 @@ export default function MainLayout() {
             </div>
           )}
 
-          {visitedTabs['/stories'] && (
+          {visitedTabs['/groups'] && (
             <div 
-              className={`h-full w-full absolute inset-0 ${location.pathname === '/stories' ? 'visible z-10 pointer-events-auto opacity-100' : 'invisible z-0 pointer-events-none opacity-0'}`}
+              className={`h-full w-full absolute inset-0 ${location.pathname === '/groups' ? 'visible z-10 pointer-events-auto opacity-100' : 'invisible z-0 pointer-events-none opacity-0'}`}
             >
               <Suspense fallback={null}>
-                <StoriesTab />
+                <GroupsTab />
               </Suspense>
             </div>
           )}
 
-          {visitedTabs['/search'] && (
+          {visitedTabs['/contacts'] && (
             <div 
-              className={`h-full w-full absolute inset-0 ${location.pathname === '/search' ? 'visible z-10 pointer-events-auto opacity-100' : 'invisible z-0 pointer-events-none opacity-0'}`}
+              className={`h-full w-full absolute inset-0 ${location.pathname === '/contacts' ? 'visible z-10 pointer-events-auto opacity-100' : 'invisible z-0 pointer-events-none opacity-0'}`}
             >
               <Suspense fallback={null}>
-                <SearchTab />
+                <ContactsTab />
               </Suspense>
             </div>
           )}
